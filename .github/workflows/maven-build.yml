@@ -27,3 +27,21 @@ jobs:
           cache: maven
       - name: Build with Maven Wrapper
         run: ./mvnw -B package
+
+  # Step 4: Install Trivy for vulnerability scanning
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.33.0/trivy_0.33.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.33.0_Linux-64bit.deb
+
+      # Step 5: Scan Docker image with Trivy
+      - name: Scan Docker image for vulnerabilities
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL your-app:latest
+
+      # Optional Step 6: Upload scan report (if needed)
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.txt
